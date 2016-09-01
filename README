@@ -1,0 +1,87 @@
+Daniela Ene
+326CC
+Paradigme de programare
+Haskell: Învățare instrumentală
+
+1. Generarea căilor
+
+neighborsOf: Pentru generarea vecinilor unei stari am parcurs lista de perechi
+vecine si am selectat doar perechile ce au pe prima pozitie starea data ca 
+parametru. Pentru a construi lista de vecini am aplicat un map pe lista
+rezultata din filter pentru a selecta al doilea element al perechii.
+
+randomPath: Pentru a genera o cale infinta am folosit iterate pentru a
+construi initial o lista infinita de perechi (stare, generator) in functia
+randomPathMatch. Aceste perechi se construiesc in felul urmator: iterate 
+primeste ca valoare initiala perechea (startState, g), unde g este obtinut
+aplicand split pe generatorul primit ca parametru. Functia randomIndex imi
+genereaza aleator un indice din lista de vecini ai unei perechi data ca
+parametru. In functia lambda a lui iterate extrag din lista de vecini
+elementul de la indexul returnat de randomIndex si contruiesc un alt generator
+folosind next si construiesc perechea. In functia randomPath parcurg lista de
+perechi construita si aplic fst pe fiecare element.
+
+terminatePath: Pentru a trunchia calea infinta la o stare terminala,
+construiesc lista folosind thakeWhile (extrag cat timp elementul este diferit
+de 8 si de 12). Pentru ca am nevoie si de starea terminala si nu pot determina
+care dintre cele 2 este, calculez len = dimensiunea listei intoarsa de 
+takeWhile + 1, iar calea trunchiata va fi reprezentata de primele n stari
+din calea infinita.
+
+randomPaths: Pentru a genera o infinitate de cai infinite, construiesc in 
+randomPathsMatch o infinitate de perechi (cale, generator) folosind randomPath
+apoi in randomPath folosesc un map pentru a extrage doar primul element.
+
+2. Estimarea utilităților fără diminuarea ratei de învățare
+
+reinforcements: Am construit un array cu elemente de tip (stare, consecinta).
+
+initialEstimation: Am construit un array cu elemente de tip (stare, estimare).
+
+values: Pentru a construi lista de utilitati provenite dintr-o estimare,
+am folosit list comprehension si extrag pentru fiecare element din array-ul
+estimare valoare din campul est.
+
+showEstimation: Pentru a afisa lista de estimari, am impartit-o mai intai in
+in lise de dimensiune width. Pe fiecare dintre aceste liste aplic un map a 
+carui functie construieste un string. listOfRows introarce o lista de stringuri
+reprezentand fiecare linie. In final construiesc stringul prin intercalarea
+unui "\n" intre fiecare element al listei inversate pentru a afisa conform 
+exemplului.
+
+updateEstimation: Actualizarea estimarii dupa parcurgerea unei cai se face
+folosind un foldl care primeste estimarea ca acumulator si la fiecare iteratie
+adauga estimarea obtinuta prin parcurgerea unei tranzitii. In functia compute
+construiesc perechea de forma (stare, noua_estimare) si o adaug in vechea
+estimare. Functia transitionList primeste o cale si intoarce o lista de 
+tranzitii.
+
+estimations: Obtinerea fluxului infinit de estimări rafinate succesiv se obtine
+folosind mappAccumL care primeste ca parametru initialEstimation si 
+construieste perechi de forma (acumulator, 
+estimare_la_un_anumit_moment_din_iteratie). In final se returneaza lista de 
+estimari.
+
+estimate: Estimarea de rang dintr-un flux de estimari se face folosind functia
+definita mai sus si extragerea elementului de la indexul dat ca parametru.
+
+bestNeighborOf: Pentru a determina vecinul cu cea mai mare valoare estimata,
+am construit o lista ce contine elemente de forma 
+(stare, estimare) | stare <- vecinii stare_data_ca parametru. Lista obtinuta 
+se sorteaza descrescator si se selecteaza primul element.
+
+bestPath: Constructia caii optime se face intr-un iterate care apeleaza functia
+bestNeighborOf cu valoare initiala startState.
+
+3. Estimarea utilităților cu diminuarea ratei de învățare
+
+scaledLearningRates: Fluxul infinit al ratelor de învățare scalate se 
+construieste intr-un iterate cale la fiecare pas inmulteste cu scaleFactor si
+primeste ca valoare initiala learningRate.
+
+Dupa definirea tipului StateInfo ce contine in campul est, estimarea starii si
+in nr_viz numarul de vizitari ale starii, am modificat urmatoarele functii de 
+la exercitiul anterior : initialEstimation, unde initializez nr_viz cu 0,
+functia values, care aduce doar datele din campul est, updateEstimation care
+actualizeaza nr_viz pentru fiecare stare si foloseste rata de invatare din
+fluxul scaledLearningRates.
